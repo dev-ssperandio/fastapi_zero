@@ -10,5 +10,17 @@ def test_root_deve_retornar_ola_mundo():
 
     response = client.get('/')
 
-    assert response.json() == {'message': 'Olá, mundo!'}
-    assert response.status_code == HTTPStatus.ok
+    assert response.json() == {'message': 'Hello, World!'}
+    assert response.status_code == HTTPStatus.OK
+
+
+def test_read_html_deve_retornar_um_html():
+    # Arrange
+    client = TestClient(app)
+
+    # Act
+    response = client.get('/html')
+
+    # Assert
+    assert response.status_code == HTTPStatus.OK
+    assert response.headers['content-type'] == 'text/html; charset=utf-8'
