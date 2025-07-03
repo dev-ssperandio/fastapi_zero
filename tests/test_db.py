@@ -1,6 +1,6 @@
 from dataclasses import asdict
-from sqlalchemy import select
 from fastapi_zero.models import User
+from sqlalchemy import select
 
 
 def test_create_user(session, mock_db_time):

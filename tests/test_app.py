@@ -1,22 +1,6 @@
 from http import HTTPStatus
 
-from fastapi_zero.schema import UserPublic
-
-
-def test_root_deve_retornar_ola_mundo(client):
-    response = client.get('/')
-
-    assert response.json() == {'message': 'Hello, World!'}
-    assert response.status_code == HTTPStatus.OK
-
-
-def test_read_html_deve_retornar_um_html(client):
-    # Act
-    response = client.get('/html')
-
-    # Assert
-    assert response.status_code == HTTPStatus.OK
-    assert response.headers['content-type'] == 'text/html; charset=utf-8'
+from fastapi_zero.schemas import UserPublic
 
 
 def test_create_user(client):
@@ -127,9 +111,10 @@ def test_update_user(client, user, token):
     }
 
 
-def test_update_user_not_found(client):
+def test_update_user_not_found(client, token):
     response = client.put(
         '/users/3',
+        headers={'Authorization': f'Bearer {token}'},
         json={
             'username': 'VITA',
             'email': 'vita@example.com',
@@ -137,25 +122,24 @@ def test_update_user_not_found(client):
         },
     )
 
-    assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.json() == {'detail': 'Usuário não encontrado'}
+    assert response.status_code == HTTPStatus.FORBIDDEN
+    assert response.json() == {'detail': 'Sem a permição necessária para atualizar o usuário'}
 
 
 def test_delete_user(client, user, token):
     response = client.delete(
-        f'/users/{user.id}',
-        headers={'Authorization': f'Bearer {token}'}
+        f'/users/{user.id}', headers={'Authorization': f'Bearer {token}'}
     )
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {'message': 'Usuário deletado'}
 
 
-def test_delete_user_not_found(client):
-    response = client.delete('/users/2')
+def test_delete_user_not_found(client, token):
+    response = client.delete('/users/2', headers={'Authorization': f'Bearer {token}'})
 
-    assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.json() == {'detail': 'Usuário não encontrado'}
+    assert response.status_code == HTTPStatus.FORBIDDEN
+    assert response.json() == {'detail': 'Sem a permição necessária para deletar o usuário'}
 
 
 def test_update_integrity_error(client, user, token):
@@ -184,7 +168,7 @@ def test_update_integrity_error(client, user, token):
 
 def test_get_token(client, user):
     response = client.post(
-        '/token',
+        'auth/token',
         data={'username': user.email, 'password': user.clean_password},
     )
 
