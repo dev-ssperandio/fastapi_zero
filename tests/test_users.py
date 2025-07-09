@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 from fastapi_zero.schemas import UserPublic
 
+
 def test_create_user(client):
     response = client.post(
         '/users/',
@@ -18,6 +19,7 @@ def test_create_user(client):
         'username': 'BADI',
         'email': 'badi@example.com',
     }
+
 
 def test_create_user_username_already_exists(client):
     client.post(
@@ -121,7 +123,9 @@ def test_update_user_not_found(client, token):
     )
 
     assert response.status_code == HTTPStatus.FORBIDDEN
-    assert response.json() == {'detail': 'Sem a permição necessária para atualizar o usuário'}
+    assert response.json() == {
+        'detail': 'Sem a permição necessária para atualizar o usuário'
+    }
 
 
 def test_delete_user(client, user, token):
@@ -134,10 +138,14 @@ def test_delete_user(client, user, token):
 
 
 def test_delete_user_not_found(client, token):
-    response = client.delete('/users/2', headers={'Authorization': f'Bearer {token}'})
+    response = client.delete(
+        '/users/2', headers={'Authorization': f'Bearer {token}'}
+    )
 
     assert response.status_code == HTTPStatus.FORBIDDEN
-    assert response.json() == {'detail': 'Sem a permição necessária para deletar o usuário'}
+    assert response.json() == {
+        'detail': 'Sem a permição necessária para deletar o usuário'
+    }
 
 
 def test_update_integrity_error(client, user, token):

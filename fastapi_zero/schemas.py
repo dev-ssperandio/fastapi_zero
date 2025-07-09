@@ -35,6 +35,7 @@ class Token(BaseModel):
     access_token: str
     type_token: str
 
+
 class FilterPage(BaseModel):
     offset: int = Field(ge=0, default=0)
     limit: int = Field(ge=0, default=10)
