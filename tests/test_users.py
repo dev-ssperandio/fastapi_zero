@@ -1,5 +1,7 @@
 from http import HTTPStatus
 
+import pytest
+
 from fastapi_zero.schemas import UserPublic
 
 
@@ -147,7 +149,7 @@ def test_delete_user_not_found(client, token):
         'detail': 'Sem a permição necessária para deletar o usuário'
     }
 
-
+@pytest.mark.asyncio
 def test_update_integrity_error(client, user, token):
     client.post(
         '/users/',
@@ -170,3 +172,27 @@ def test_update_integrity_error(client, user, token):
 
     assert response.status_code == HTTPStatus.CONFLICT
     assert response.json() == {'detail': 'Username ou Email já existe'}
+
+
+def test_update_user_with_wrong_user(client, other_user, token):
+    response = client.put(
+        f'/users/{other_user.id}',
+        headers={'Authorization': f'Bearer {token}'},
+        json={
+            'username': 'bob',
+            'email': 'bob@example.com',
+            'password': 'mynewpassword',
+        },
+    )
+
+    assert response.status_code == HTTPStatus.FORBIDDEN
+    assert response.json() == {'detail': 'Sem a permição necessária para atualizar o usuário'}
+
+def test_delete_user_wrong_user(client, other_user, token):
+    response = client.delete(
+        f'/users/{other_user.id}',
+        headers={'Authorization': f'Bearer {token}'}
+    )
+
+    assert response.status_code == HTTPStatus.FORBIDDEN
+    assert response.json() == {'detail': 'Sem a permição necessária para deletar o usuário'}
